@@ -72,9 +72,9 @@ install_caldera(){
   cd caldera
   echo "[$(date +%H:%M:%S)]: Installing python dependencies..."
 
-  pip install -r requirements.txt
+  pip3 install -r requirements.txt
   echo "[$(date +%H:%M:%S)]: Starting MITRE caldera"
-  python server.py&
+  python3 server.py&
 }
 
 main() {
