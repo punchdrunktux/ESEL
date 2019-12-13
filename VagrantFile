@@ -1,0 +1,65 @@
+
+
+Vagrant.configure("2") do |config|
+
+
+  config.vm.define "kali" do |cfg|
+
+    cfg.vm.synced_folder "~/dev/ESEL/SharedFiles", "/SharedFiles"
+    cfg.vm.box = "kalilinux/rolling"
+    cfg.vm.hostname = "kali"
+    cfg.vm.provision :shell, path: "scripts/bootstrap_kali.sh"
+    cfg.vm.network :private_network, ip: "10.10.38.105", gateway: "10.10.38.1", dns: "10.10.38.1"
+
+    cfg.vm.provider "virtualbox" do |vb, override|
+      vb.gui = true
+      vb.name = "kali"
+      vb.customize ["modifyvm", :id, "--memory", 4096]
+      vb.customize ["modifyvm", :id, "--cpus", 2]
+      vb.customize ["modifyvm", :id, "--vram", "128"]
+      vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+      vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
+      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      vb.customize ["setextradata", "global", "GUI/SuppressMessages", "all" ]
+    end
+
+    cfg.vm.provider "vmware_desktop" do |v, override|
+      v.name = "ESEL-Kali"
+      v.vmx["displayname"] = "kali"
+      v.memory = 4096
+      v.cpus = 2
+      v.gui = true
+    end
+end
+
+
+  config.vm.define "Covenant" do |cfg|
+
+    cfg.vm.synced_folder "~/dev/ESEL/SharedFiles", "/SharedFiles"
+    cfg.vm.box = "ubuntu/disco64"
+    cfg.vm.hostname = "Coveant"
+    cfg.vm.provision :shell, path: "scripts/bootstrap_c2.sh"
+    cfg.vm.network :private_network, ip: "10.10.38.125", gateway: "10.10.38.1", dns: "10.10.38.1"
+
+
+    cfg.vm.provider "virtualbox" do |vb, override|
+      vb.gui = true
+      vb.name = "Covenant"
+      vb.customize ["modifyvm", :id, "--memory", 4096]
+      vb.customize ["modifyvm", :id, "--cpus", 2]
+      vb.customize ["modifyvm", :id, "--vram", "128"]
+      vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+      vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
+      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      vb.customize ["setextradata", "global", "GUI/SuppressMessages", "all" ]
+    end
+
+    cfg.vm.provider "vmware_desktop" do |v, override|
+      v.name = "Covenant"
+      v.vmx["displayname"] = "Coveant"
+      v.memory = 4096
+      v.cpus = 2
+      v.gui = true
+    end
+end
+end
