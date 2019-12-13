@@ -12,7 +12,7 @@ apt_update() {
 
 install_basics() {
     echo "[$(date +%H:%M:%S)]: Installing base software packages..."
-    apt-get install -y unzip whois jq build-essential unzip
+    apt-get install -y unzip whois jq build-essential unzip python3 python3-pip
 }
 
 install_covenant(){
@@ -59,13 +59,31 @@ goto_root(){
   sudo su -
 }
 
+install_caldera(){
+  echo "-----------------------------------------------"
+  echo "[$(date +%H:%M:%S)]: Installing MITRE Caldera"
+  echo "-----------------------------------------------"
+  echo "[$(date +%H:%M:%S)]: This will take a few minutes..."
+
+  echo "[$(date +%H:%M:%S)]: Cloning repository..."
+  sudo su -
+  cd /opt
+  git clone https://github.com/mitre/caldera.git --recursive --branch master
+  cd caldera
+  echo "[$(date +%H:%M:%S)]: Installing python dependencies..."
+
+  pip install -r requirements.txt
+  echo "[$(date +%H:%M:%S)]: Starting MITRE caldera"
+  python server.py&
+}
+
 main() {
   #fix_eth1_static_ip
   goto_root
   apt_update
   install_basics
-  install_covenant
-
+  #install_covenant
+  install_caldera
 }
 
 main

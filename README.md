@@ -9,6 +9,10 @@
 - DNS: 10.1.1.1
 - GW: 10.1.1.1
 
+To start:
+  cd ESEL
+  vagrant up kali
+
 2. ControlTower
 - Purpose:  Covenant and Caldera
 - Hostname: ControlTower
@@ -16,6 +20,9 @@
 - DNS: 10.1.1.1
 - GW: 10.1.1.1
 
+To start:
+  cd ESEL
+  vagrant up ControlTower
 
 **TODO:**
 - install Caldera on ControlTower
