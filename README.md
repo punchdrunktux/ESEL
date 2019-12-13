@@ -16,5 +16,5 @@ DNS: 10.1.1.1
 GW: 10.1.1.1
 
 
-TODO:
+**TODO:**
 - install Caldera on ControlTower
