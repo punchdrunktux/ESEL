@@ -8,6 +8,7 @@ Vagrant.configure("2") do |config|
     cfg.vm.synced_folder "~/dev/ESEL/SharedFiles", "/SharedFiles"
     cfg.vm.box = "kalilinux/rolling"
     cfg.vm.hostname = "kali"
+    cfg.vm.boot_timeout = 600
     cfg.vm.provision :shell, path: "scripts/bootstrap_kali.sh"
     cfg.vm.network :private_network, ip: "192.168.38.15", gateway: "192.168.38.1", dns: "1.1.1.1"
 
@@ -34,20 +35,27 @@ end
 
 
   config.vm.define "ControlTower" do |cfg|
-
     cfg.vm.synced_folder "~/dev/ESEL/SharedFiles", "/SharedFiles"
-    cfg.vm.box = "ubuntu/disco64"
+    cfg.vm.box = "ubuntu/bionic64"
     cfg.vm.hostname = "ControlTower"
-    cfg.vm.provision :shell, path: "scripts/bootstrap_ct.sh"
     cfg.vm.network :private_network, ip: "192.168.38.10", gateway: "192.168.38.1", dns: "1.1.1.1"
+    #cfg.vm.provision :shell, path: "scripts/fixeth.sh"
+    #cfg.vm.provision "reload"
+    cfg.vm.provision "file", source: "~/dev/ESEL/resources/ControlTower", destination: "/tmp/"
+    cfg.vm.provision "shell", inline: "sudo mv /tmp/ControlTower /opt/; dos2unix /opt/ControlTower/*; chmod +x /opt/ControlTower/*.sh"
+
+    cfg.vm.provision :shell, path: "scripts/bootstrap_ct.sh"
+    #cfg.vm.provision "reload"
+    cfg.vm.provision :shell, path: "scripts/ct_checkservices.sh"
+
 
 
     cfg.vm.provider "virtualbox" do |vb, override|
       vb.gui = true
       vb.name = "ControlTower"
       vb.customize ["modifyvm", :id, "--memory", 4096]
-      vb.customize ["modifyvm", :id, "--cpus", 2]
-      vb.customize ["modifyvm", :id, "--vram", "128"]
+      vb.customize ["modifyvm", :id, "--cpus", 1]
+      vb.customize ["modifyvm", :id, "--vram", "256"]
       vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
       vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
       vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]

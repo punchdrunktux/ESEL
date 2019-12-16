@@ -12,7 +12,7 @@ apt_update() {
 
 install_basics() {
     echo "[$(date +%H:%M:%S)]: Installing base software packages..."
-    apt-get install -y unzip whois jq build-essential unzip python3 python3-pip
+    apt-get install -y unzip whois jq build-essential unzip python3 python3-pip dos2unix
 }
 
 install_covenant(){
@@ -77,12 +77,48 @@ install_caldera(){
   python3 server.py&
 }
 
-check_services(){
-  # If the curl operation fails, we'll just leave the variable equal to 0;  1 means everything is good
-  CALDERA_CHECK=$(curl -ks -m 2 http://192.168.38.10:8888/login | grep -c 'access' || echo "")
-  if ["$CALDERA_CHECK" -lt 1]; then
-    (echo >&2 "Warning: Caldera may not be functioning correctly")
+
+fix_eth1_static_ip() {
+
+  # There's a fun issue where dhclient keeps messing with eth1 despite the fact
+  # that eth1 has a static IP set. We workaround this by setting a static DHCP lease.
+  echo -e 'interface "eth1" {
+    send host-name = gethostname();
+    send dhcp-requested-address 192.168.38.105;
+  }' >> /etc/dhcp/dhclient.conf
+  service networking restart
+  # Fix eth1 if the IP isn't set correctly
+  ETH1_IP=$(ifconfig eth1 | grep 'inet addr' | cut -d ':' -f 2 | cut -d ' ' -f 1)
+  if [ "$ETH1_IP" != "192.168.38.10" ]; then
+    echo "Incorrect IP Address settings detected. Attempting to fix."
+    ifdown eth1
+    ip addr flush dev eth1
+    ifup eth1
+    ETH1_IP=$(ifconfig eth1 | grep 'inet addr' | cut -d ':' -f 2 | cut -d ' ' -f 1)
+    if [ "$ETH1_IP" == "192.168.38.10" ]; then
+      echo "[$(date +%H:%M:%S)]: The static IP has been fixed and set to 192.168.38.10"
+    else
+      echo "[$(date +%H:%M:%S)]: Failed to fix the broken static IP for eth1. Exiting because this will cause problems with other VMs."
+      exit 1
+    fi
   fi
+}
+
+install_services(){
+  #move the service files from staging to the services location
+  if [ -f "/opt/ControlTower/covenantc2.service" ]; then
+    sudo mv /opt/ControlTower/covenantc2.service /lib/systemd/system/
+    sudo chmod 644 /lib/systemd/system/covenantc2.service
+    sudo systemctl start covenantc2
+    sudo systemctl enable covenantc2
+  else
+    echo "ERROR: CovenantC2 service file missing."
+  fi
+
+}
+enable_sshd(){
+  sudo cp /opt/ControlTower/sshd_config /etc/ssh/
+  sudo systemctl restart sshd
 
 }
 
@@ -90,10 +126,11 @@ main() {
   #fix_eth1_static_ip
   goto_root
   apt_update
+  enable_sshd
   install_basics
   install_covenant
   install_caldera
-  check_services
+  install_services
 }
 
 main

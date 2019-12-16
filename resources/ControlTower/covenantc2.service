@@ -1,0 +1,9 @@
+[Unit]
+Description=Covenant_C2
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /opt/ControlTower/covenant_start.sh
+
+[Install]
+WantedBy=multi-user.target
