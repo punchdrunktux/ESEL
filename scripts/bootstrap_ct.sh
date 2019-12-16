@@ -82,7 +82,7 @@ main() {
   goto_root
   apt_update
   install_basics
-  #install_covenant
+  install_covenant
   install_caldera
 }
 
