@@ -77,6 +77,15 @@ install_caldera(){
   python3 server.py&
 }
 
+check_services(){
+  # If the curl operation fails, we'll just leave the variable equal to 0;  1 means everything is good
+  CALDERA_CHECK=$(curl -ks -m 2 http://192.168.38.10:8888/login | grep -c 'access' || echo "")
+  if ["$CALDERA_CHECK" -lt 1]; then
+    (echo >&2 "Warning: Caldera may not be functioning correctly")
+  fi
+
+}
+
 main() {
   #fix_eth1_static_ip
   goto_root
@@ -84,6 +93,7 @@ main() {
   install_basics
   install_covenant
   install_caldera
+  check_services
 }
 
 main
