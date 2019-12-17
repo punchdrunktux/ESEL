@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
       vb.gui = true
       vb.name = "kali"
       vb.customize ["modifyvm", :id, "--memory", 4096]
-      vb.customize ["modifyvm", :id, "--cpus", 2]
+      vb.customize ["modifyvm", :id, "--cpus", 1]
       vb.customize ["modifyvm", :id, "--vram", "128"]
       vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
       vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
@@ -72,7 +72,7 @@ end
 end
 
   config.vm.define "win10-unprotected" do |cfg|
-    cfg.vm.box = "kvasir-labs/windows10-clean"
+    cfg.vm.box = "detectionlab/win10"
     cfg.vm.hostname = "win10-unprotected"
     cfg.vm.boot_timeout = 1200
     cfg.vm.communicator = "winrm"
@@ -81,27 +81,29 @@ end
     cfg.winrm.retry_limit = 20
     cfg.vm.network :private_network, ip: "192.168.38.105", gateway: "192.168.38.1", dns: "192.168.38.102"
 
-#    cfg.vm.provision "shell", path: "scripts/fix-second-network.ps1", privileged: false, args: "-ip 192.168.38.104 -dns 192.168.38.102"
+    cfg.vm.provision "shell", path: "scripts/fix-second-network.ps1", privileged: false, args: "-ip 192.168.38.105 -dns 192.168.38.102"
     cfg.vm.provision "shell", path: "scripts/MakeWindows10GreatAgain.ps1", privileged: false
     cfg.vm.provision "shell", path: "scripts/provision.ps1", privileged: false
-#    cfg.vm.provision "shell", inline: "cscript c:\\windows\\system32\\slmgr.vbs -rearm", privileged: false
-#    cfg.vm.provision "reload"
-#    cfg.vm.provision "shell", path: "scripts/provision.ps1", privileged: false
-#    cfg.vm.provision "shell", path: "scripts/download_palantir_wef.ps1", privileged: false
-#    cfg.vm.provision "shell", path: "scripts/download_palantir_osquery.ps1", privileged: false
-#    cfg.vm.provision "shell", inline: 'wevtutil el | Select-String -notmatch "Microsoft-Windows-LiveId" | Foreach-Object {wevtutil cl "$_"}', privileged: false
-#    cfg.vm.provision "shell", path: "scripts/install-utilities.ps1", privileged: false
+    cfg.vm.provision "shell", inline: "cscript c:\\windows\\system32\\slmgr.vbs -rearm", privileged: false
+    cfg.vm.provision "reload"
+    cfg.vm.provision "shell", path: "scripts/provision.ps1", privileged: false
+    cfg.vm.provision "shell", path: "scripts/download_palantir_wef.ps1", privileged: false
+    cfg.vm.provision "shell", path: "scripts/download_palantir_osquery.ps1", privileged: false
+    cfg.vm.provision "shell", inline: 'wevtutil el | Select-String -notmatch "Microsoft-Windows-LiveId" | Foreach-Object {wevtutil cl "$_"}', privileged: false
+    cfg.vm.provision "shell", path: "scripts/install-utilities.ps1", privileged: false
     cfg.vm.provision "shell", path: "scripts/install-redteam.ps1", privileged: false
     cfg.vm.provision "shell", path: "scripts/install-choco-extras.ps1", privileged: false
-#    cfg.vm.provision "shell", path: "scripts/install-osquery.ps1", privileged: false
+    cfg.vm.provision "shell", path: "scripts/install-osquery.ps1", privileged: false
     cfg.vm.provision "shell", path: "scripts/install-sysinternals.ps1", privileged: false
-#    cfg.vm.provision "shell", path: "scripts/install-autorunstowineventlog.ps1", privileged: false
+    cfg.vm.provision "shell", path: "scripts/install-autorunstowineventlog.ps1", privileged: false
+#    cfg.vm.provision "shell", path: "scripts/install-caldera.ps1", privileged: false
+
 
     cfg.vm.provider "vmware_desktop" do |v, override|
       v.vmx["displayname"] = "win10-unprotected"
       v.vmx["gui.fullscreenatpoweron"] = "FALSE"
       v.vmx["gui.viewModeAtPowerOn"] = "windowed"
-      v.memory = 2048
+      v.memory = 4192
       v.cpus = 1
       v.gui = true
       v.enable_vmrun_ip_lookup = false
@@ -111,7 +113,7 @@ end
       vb.gui = true
       vb.name = "win10-unprotected"
       vb.default_nic_type = "82545EM"
-      vb.customize ["modifyvm", :id, "--memory", 2048]
+      vb.customize ["modifyvm", :id, "--memory", 4192]
       vb.customize ["modifyvm", :id, "--cpus", 1]
       vb.customize ["modifyvm", :id, "--vram", "32"]
       vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
